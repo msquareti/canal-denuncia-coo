@@ -14,30 +14,38 @@
 <body>
   <div id="container">
     <h1>Sua denúncia foi registrada com sucesso</h1>
-    <p>Guarde com segurança o número de protocolo abaixo. Ele é a única forma de acessar sua denúncia futuramente.</p>
+    <p>Guarde com segurança o número de protocolo abaixo:</p>
     <div class="protocolo" id="protocolo-display">Carregando...</div>
     <a id="link-consulta" class="botao" href="#" target="_blank">Acompanhar denúncia</a>
   </div>
 
   <script>
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+    async function carregarUltimoProtocolo() {
+      try {
+        const response = await fetch("https://<SEU_ENDPOINT_DO_POWER_AUTOMATE>", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        const data = await response.json();
+        const protocolo = data.protocolo;
+
+        if (protocolo) {
+          document.getElementById("protocolo-display").textContent = protocolo;
+          document.getElementById("link-consulta").href = `https://msquareti.github.io/canal-denuncia/consulta.html?protocolo=${encodeURIComponent(protocolo)}`;
+        } else {
+          document.getElementById("protocolo-display").textContent = "Protocolo não encontrado.";
+          document.getElementById("link-consulta").style.display = "none";
+        }
+      } catch (error) {
+        document.getElementById("protocolo-display").textContent = "Erro ao carregar protocolo: " + error.message;
+        document.getElementById("link-consulta").style.display = "none";
+      }
     }
 
-    window.onload = () => {
-      const protocolo = getQueryParam("protocolo");
-      const display = document.getElementById("protocolo-display");
-      const link = document.getElementById("link-consulta");
-
-      if (protocolo) {
-        display.textContent = protocolo;
-        link.href = `https://msquareti.github.io/canal-denuncia/consulta.html?protocolo=${encodeURIComponent(protocolo)}`;
-      } else {
-        display.textContent = "Protocolo não encontrado.";
-        link.style.display = "none";
-      }
-    };
+    window.onload = carregarUltimoProtocolo;
   </script>
 </body>
 </html>

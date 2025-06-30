@@ -21,8 +21,16 @@
   </div>
 
   <script>
-    async function consultar() {
-      const protocolo = document.getElementById("protocolo").value;
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    async function consultar(protocoloFromURL) {
+      const protocoloInput = document.getElementById("protocolo");
+      const protocolo = protocoloFromURL || protocoloInput.value;
+      protocoloInput.value = protocolo;
+
       const statusArea = document.getElementById("status-area");
       statusArea.innerHTML = "Consultando...";
 
@@ -50,10 +58,11 @@
         statusArea.innerHTML = `<p style='color:red;'>Erro ao consultar: ${error.message}</p>`;
       }
     }
-  </script>
-</body>
-</html>
 
+    window.onload = () => {
+      const protocoloURL = getQueryParam("protocolo");
+      if (protocoloURL) consultar(protocoloURL);
+    };
   </script>
 </body>
 </html>

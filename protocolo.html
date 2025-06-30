@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Denúncia registrada</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7f8;
+      padding: 40px;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    .protocolo {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #2a7b73;
+      margin: 20px 0;
+    }
+    .mensagem {
+      font-size: 1em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sua denúncia foi registrada com sucesso</h2>
+    <p class="mensagem">Guarde com segurança o número de protocolo abaixo. Ele é a única forma de acessar sua denúncia futuramente.</p>
+    <div class="protocolo" id="protocolo">Carregando...</div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const protocolo = urlParams.get('protocolo');
+    document.getElementById("protocolo").textContent = protocolo || 'Protocolo não encontrado.';
+  </script>
+</body>
+</html>

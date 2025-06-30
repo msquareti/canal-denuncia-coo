@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acompanhar Denúncia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7f8;
+      padding: 40px;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    .protocolo {
+      font-size: 1.2em;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2a7b73;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 1em;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      font-size: 1em;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Acompanhar Denúncia</h2>
+    <p>Digite o número do seu protocolo:</p>
+    <input type="text" id="protocoloInput" placeholder="Ex: PROT-20250628-8X5K7Z">
+    <br>
+    <button onclick="consultarProtocolo()">Consultar</button>
+
+    <div id="resultado" class="status"></div>
+  </div>
+
+  <script>
+    function consultarProtocolo() {
+      const protocolo = document.getElementById("protocoloInput").value.trim();
+      const endpoint = `https://SEU-ENDPOINT-AQUI.com/path?protocolo=${encodeURIComponent(protocolo)}`;
+
+      fetch(endpoint)
+        .then(response => {
+          if (!response.ok) throw new Error("Erro ao consultar");
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById("resultado").innerHTML =
+            `<div class="protocolo">Status: ${data.status}</div>
+             <div>Atualizado em: ${data.atualizado_em}</div>
+             <p>${data.mensagem}</p>`;
+        })
+        .catch(error => {
+          document.getElementById("resultado").innerText = "Protocolo não encontrado ou erro ao consultar.";
+        });
+    }
+  </script>
+</body>
+</html>

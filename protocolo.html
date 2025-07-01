@@ -44,7 +44,11 @@
 
         const data = await response.json();
         const protocolo = data.protocolo;
-        const dataHora = data.atualizado_em;
+        let dataHora = data.atualizado_em;
+        if (dataHora) {
+          const dt = new Date(dataHora);
+          dataHora = dt.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        }
 
         if (protocolo) {
           protocoloDisplay.innerHTML = `Protocolo: <strong>${protocolo}</strong><br><a href='https://msquareti.github.io/canal-denuncia/consulta.html?protocolo=${encodeURIComponent(protocolo)}' target='_blank'>Clique aqui para acompanhar</a>`;
@@ -59,4 +63,5 @@
   </script>
 </body>
 </html>
+
 

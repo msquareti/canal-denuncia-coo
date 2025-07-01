@@ -1,26 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Envio Anonimo de Arquivos</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Envio de Arquivo Anônimo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      text-align: center;
+      padding: 50px;
+    }
+    #container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    input[type="text"],
+    input[type="file"] {
+      font-size: 16px;
+      padding: 8px;
+      margin-top: 5px;
+      width: 100%;
+      max-width: 300px;
+    }
+    button.botao {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #2c7a7b;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #444;
+    }
+  </style>
 </head>
 <body>
-  <h2>Envie um arquivo anonimo vinculado ao seu protocolo</h2>
+  <div id="container">
+    <h2>Envie um arquivo anônimo vinculado ao seu protocolo</h2>
 
-  <label for="protocoloInput">Numero do protocolo:</label><br />
-  <input type="text" id="protocoloInput" placeholder="Ex: ABC123" required />
-  <br /><br />
+    <label for="protocoloInput">Número do protocolo:</label>
+    <input type="text" id="protocoloInput" placeholder="Ex: ABC123" required />
 
-  <label for="fileInput">Selecione o arquivo:</label><br />
-  <input type="file" id="fileInput" />
-  <br /><br />
+    <label for="fileInput">Selecione o arquivo:</label>
+    <input type="file" id="fileInput" />
 
-  <button onclick="uploadFile()">Enviar</button>
+    <button class="botao" onclick="uploadFile()">Enviar</button>
+
+    <div id="status"></div>
+  </div>
 
   <script>
     async function uploadFile() {
       const file = document.getElementById("fileInput").files[0];
       const protocolo = document.getElementById("protocoloInput").value.trim();
+      const status = document.getElementById("status");
+      status.textContent = "";
 
       if (!protocolo) {
         alert("Digite o número do protocolo.");
@@ -32,18 +83,16 @@
         return;
       }
 
-      // 🔧 SUBSTITUA pelo seu SAS Token (sem aspas no final)
+      // 🔧 SUBSTITUA pelos seus dados reais:
       const sasToken = "sp=w&st=2025-07-01T19:43:48Z&se=2026-06-30T03:43:48Z&spr=https&sv=2024-11-04&sr=c&sig=HUxaZDUUznpDN7l2bgZ8F6rzMa8fEp0lqSI0JO%2FztCg%3D";
-
-      // 🔧 SUBSTITUA pela URL do seu container Blob Storage
       const containerUrl = "https://storagemsqdenuncias.blob.core.windows.net/msquare-denuncias";
 
-      // Nome do blob: denuncia_<protocolo>_<nome-do-arquivo>
       const blobName = `denuncia_${protocolo}_${encodeURIComponent(file.name)}`;
-
       const uploadUrl = `${containerUrl}/${blobName}?${sasToken}`;
 
       try {
+        status.textContent = "Enviando arquivo, por favor aguarde...";
+
         const response = await fetch(uploadUrl, {
           method: "PUT",
           headers: {
@@ -54,14 +103,17 @@
         });
 
         if (response.ok) {
-          alert("Arquivo enviado com sucesso!");
+          status.textContent = "✅ Arquivo enviado com sucesso.";
         } else {
-          alert("Erro ao enviar arquivo: " + response.statusText);
+          status.textContent = "❌ Erro ao enviar: " + response.statusText;
         }
       } catch (error) {
-        alert("Falha na comunicação com o servidor: " + error.message);
+        status.textContent = "❌ Falha na comunicação com o servidor: " + error.message;
       }
     }
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>

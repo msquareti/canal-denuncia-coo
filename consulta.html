@@ -3,36 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta de Denúncia</title>
+  <title>Consultar Denúncia</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; text-align: center; padding: 50px; }
     #container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; }
-    input, button { padding: 10px; font-size: 16px; margin-top: 10px; }
-    #resultado { margin-top: 20px; font-size: 18px; }
-    .erro { color: red; }
-    .campo { margin-bottom: 10px; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px; }
+    .resultado { margin-top: 20px; font-size: 18px; text-align: left; }
   </style>
 </head>
 <body>
   <div id="container">
-    <h1>Consultar Status da Denúncia</h1>
-    <div class="campo">
-      <input type="text" id="protocolo" placeholder="Digite o número do protocolo">
-    </div>
-    <button onclick="consultarStatus()">Consultar</button>
-    <div id="resultado"></div>
+    <h1>Consultar Denúncia</h1>
+    <p>Insira o número do protocolo para acompanhar o status:</p>
+    <input type="text" id="protocoloInput" placeholder="Ex: PROT-20250701-a50d80">
+    <br>
+    <button onclick="consultar()">Consultar</button>
+    <div class="resultado" id="resultado"></div>
   </div>
 
   <script>
-    async function consultarStatus() {
-      const protocolo = document.getElementById("protocolo").value.trim();
+    async function consultar() {
+      const protocolo = document.getElementById("protocoloInput").value;
       const resultado = document.getElementById("resultado");
-
-      if (!protocolo) {
-        resultado.innerHTML = "<p class='erro'>Por favor, insira um protocolo.</p>";
-        return;
-      }
-
       resultado.textContent = "Consultando...";
 
       try {
@@ -46,16 +38,16 @@
 
         const data = await response.json();
 
-        if (data.status === "Protocolo não encontrado") {
-          resultado.innerHTML = `<p class='erro'>${data.mensagem}</p>`;
-        } else {
+        if (data.status || data.comentarios) {
           resultado.innerHTML = `
-            <p><strong>Status:</strong> ${data.status}</p>
-            <p><strong>Comentários:</strong> ${data.comentarios || "Nenhum comentário registrado."}</p>
+            <p><strong>Status:</strong> ${data.status || 'Indefinido'}</p>
+            <p><strong>Comentários:</strong> ${data.comentarios || 'Nenhum comentário disponível.'}</p>
           `;
+        } else {
+          resultado.innerHTML = `<p style='color:red;'>Protocolo não encontrado.</p>`;
         }
       } catch (error) {
-        resultado.innerHTML = `<p class='erro'>Erro ao consultar: ${error.message}</p>`;
+        resultado.innerHTML = `<p style='color:red;'>Erro: ${error.message}</p>`;
       }
     }
   </script>

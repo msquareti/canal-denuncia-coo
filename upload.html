@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Envio de Arquivo Anônimo</title>
+  <title>Envio de Arquivos Anônimos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,6 +17,7 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       display: inline-block;
+      max-width: 500px;
     }
     h2 {
       margin-bottom: 20px;
@@ -32,7 +33,7 @@
       padding: 8px;
       margin-top: 5px;
       width: 100%;
-      max-width: 300px;
+      max-width: 400px;
     }
     button.botao {
       margin-top: 20px;
@@ -48,67 +49,72 @@
       margin-top: 20px;
       font-size: 16px;
       color: #444;
+      text-align: left;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <h2>Envie um arquivo anônimo vinculado ao seu protocolo</h2>
+    <h2>Envie arquivos anônimos vinculados ao seu protocolo</h2>
 
     <label for="protocoloInput">Número do protocolo:</label>
     <input type="text" id="protocoloInput" placeholder="Ex: ABC123" required />
 
-    <label for="fileInput">Selecione o arquivo:</label>
-    <input type="file" id="fileInput" />
+    <label for="fileInput">Selecione os arquivos:</label>
+    <input type="file" id="fileInput" multiple />
 
-    <button class="botao" onclick="uploadFile()">Enviar</button>
+    <button class="botao" onclick="uploadFiles()">Enviar</button>
 
     <div id="status"></div>
   </div>
 
   <script>
-    async function uploadFile() {
-      const file = document.getElementById("fileInput").files[0];
+    async function uploadFiles() {
+      const files = document.getElementById("fileInput").files;
       const protocolo = document.getElementById("protocoloInput").value.trim();
       const status = document.getElementById("status");
-      status.textContent = "";
+      status.innerHTML = "";
 
       if (!protocolo) {
         alert("Digite o número do protocolo.");
         return;
       }
 
-      if (!file) {
-        alert("Selecione um arquivo para enviar.");
+      if (files.length === 0) {
+        alert("Selecione pelo menos um arquivo.");
         return;
       }
 
-      // 🔧 SUBSTITUA pelos seus dados reais:
+      // 🔧 Substitua aqui
       const sasToken = "sp=w&st=2025-07-01T19:43:48Z&se=2026-06-30T03:43:48Z&spr=https&sv=2024-11-04&sr=c&sig=HUxaZDUUznpDN7l2bgZ8F6rzMa8fEp0lqSI0JO%2FztCg%3D";
       const containerUrl = "https://storagemsqdenuncias.blob.core.windows.net/msquare-denuncias";
 
-      const blobName = `denuncia_${protocolo}_${encodeURIComponent(file.name)}`;
-      const uploadUrl = `${containerUrl}/${blobName}?${sasToken}`;
+      for (const file of files) {
+        const blobName = `denuncia_${protocolo}_${Date.now()}_${encodeURIComponent(file.name)}`;
+        const uploadUrl = `${containerUrl}/${blobName}?${sasToken}`;
 
-      try {
-        status.textContent = "Enviando arquivo, por favor aguarde...";
+        const statusItem = document.createElement("div");
+        statusItem.textContent = `Enviando: ${file.name}...`;
+        status.appendChild(statusItem);
 
-        const response = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: {
-            "x-ms-blob-type": "BlockBlob",
-            "Content-Type": file.type
-          },
-          body: file
-        });
+        try {
+          const response = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: {
+              "x-ms-blob-type": "BlockBlob",
+              "Content-Type": file.type
+            },
+            body: file
+          });
 
-        if (response.ok) {
-          status.textContent = "✅ Arquivo enviado com sucesso.";
-        } else {
-          status.textContent = "❌ Erro ao enviar: " + response.statusText;
+          if (response.ok) {
+            statusItem.textContent = `✅ ${file.name} enviado com sucesso.`;
+          } else {
+            statusItem.textContent = `❌ Erro ao enviar ${file.name}: ${response.statusText}`;
+          }
+        } catch (error) {
+          statusItem.textContent = `❌ Falha ao enviar ${file.name}: ${error.message}`;
         }
-      } catch (error) {
-        status.textContent = "❌ Falha na comunicação com o servidor: " + error.message;
       }
     }
   </script>

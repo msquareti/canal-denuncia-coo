@@ -3,60 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Protocolo Gerado</title>
+  <title>Consulta de Denúncia</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; text-align: center; padding: 50px; }
     #container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; }
-    .protocolo, .data-hora, .mensagem { font-size: 18px; margin: 15px 0; }
-    .protocolo strong { font-size: 24px; color: #2c7a7b; }
-    button.botao { margin-top: 20px; padding: 10px 20px; background-color: #2c7a7b; color: white; border-radius: 5px; font-size: 16px; border: none; cursor: pointer; }
+    input, button { padding: 10px; font-size: 16px; margin-top: 10px; }
+    #resultado { margin-top: 20px; font-size: 18px; }
+    .erro { color: red; }
+    .campo { margin-bottom: 10px; }
   </style>
 </head>
 <body>
   <div id="container">
-    <h1>Sua denúncia foi registrada com sucesso</h1>
-    <p>Clique no botão abaixo para consultar o número do protocolo gerado:</p>
-    <button class="botao" onclick="consultarProtocolo()">Consultar Protocolo</button>
-    <div class="mensagem">Atenção: o número do protocolo pode levar até 2 minutos para ser atualizado.</div>
-    <div class="protocolo" id="protocolo-display"></div>
-    <div class="data-hora" id="data-hora-display"></div>
+    <h1>Consultar Status da Denúncia</h1>
+    <div class="campo">
+      <input type="text" id="protocolo" placeholder="Digite o número do protocolo">
+    </div>
+    <button onclick="consultarStatus()">Consultar</button>
+    <div id="resultado"></div>
   </div>
 
   <script>
-    async function consultarProtocolo() {
-      const protocoloDisplay = document.getElementById("protocolo-display");
-      const dataHoraDisplay = document.getElementById("data-hora-display");
-      protocoloDisplay.textContent = "Gerando código do protocolo... Isso pode levar até 2 minutos.";
-      dataHoraDisplay.textContent = "";
+    async function consultarStatus() {
+      const protocolo = document.getElementById("protocolo").value.trim();
+      const resultado = document.getElementById("resultado");
 
-      await new Promise(resolve => setTimeout(resolve, 120000)); // 2 minutos
+      if (!protocolo) {
+        resultado.innerHTML = "<p class='erro'>Por favor, insira um protocolo.</p>";
+        return;
+      }
 
-      protocoloDisplay.textContent = "Buscando...";
+      resultado.textContent = "Consultando...";
 
       try {
-        const response = await fetch("https://default9a4a35e104984fb3bc68401fcad40a.16.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a726ab7e4cc346f79393f3297ebdc1ea/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-9a4a35e1-0498-4fb3-bc68-401fcad40a16&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=vZNPj7Zc1JFd_ZzCB1qOBVSPLD40C0wWDXLi9m1MdK0", {
+        const response = await fetch("https://default9a4a35e104984fb3bc68401fcad40a.16.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/01017028fe4a440bb4efafbf484d6546/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-9a4a35e1-0498-4fb3-bc68-401fcad40a16&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=t8DMgC28l5P3giVUp2bS5T_Px5hS4ZnOxmzYdn-dHEk", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({})
+          body: JSON.stringify({ protocolo })
         });
 
         const data = await response.json();
-        const protocolo = data.protocolo;
-        const dataHora = data.atualizado_em;
 
-        if (protocolo) {
-          protocoloDisplay.innerHTML = `Protocolo: <strong>${protocolo}</strong><br><a href='https://msquareti.github.io/canal-denuncia/consulta.html?protocolo=${encodeURIComponent(protocolo)}' target='_blank'>Clique aqui para acompanhar</a>`;
-          dataHoraDisplay.innerHTML = `Esta denúncia foi registrada em: <strong>${dataHora}</strong>. Verifique se esta é a data e hora da sua submissão para garantir que o protocolo está correto.`;
+        if (data.status === "Protocolo não encontrado") {
+          resultado.innerHTML = `<p class='erro'>${data.mensagem}</p>`;
         } else {
-          protocoloDisplay.textContent = "Protocolo não encontrado.";
+          resultado.innerHTML = `
+            <p><strong>Status:</strong> ${data.status}</p>
+            <p><strong>Comentários:</strong> ${data.comentarios || "Nenhum comentário registrado."}</p>
+          `;
         }
       } catch (error) {
-        protocoloDisplay.textContent = "Erro ao carregar protocolo: " + error.message;
+        resultado.innerHTML = `<p class='erro'>Erro ao consultar: ${error.message}</p>`;
       }
     }
   </script>
 </body>
 </html>
+
 

@@ -17,7 +17,7 @@
     <h1>Sua denúncia foi registrada com sucesso</h1>
     <p>Clique no botão abaixo para consultar o número do protocolo gerado:</p>
     <button class="botao" onclick="consultarProtocolo()">Consultar Protocolo</button>
-    <div class="mensagem">Atenção: o número do protocolo pode levar até 2 minutos para ser atualizado.</div>
+    <div class="mensagem">Atenção: o número do protocolo pode levar até 1 minuto para ser atualizado.</div>
     <div class="protocolo" id="protocolo-display"></div>
     <div class="data-hora" id="data-hora-display"></div>
   </div>
@@ -26,10 +26,10 @@
     async function consultarProtocolo() {
       const protocoloDisplay = document.getElementById("protocolo-display");
       const dataHoraDisplay = document.getElementById("data-hora-display");
-      protocoloDisplay.textContent = "Gerando código do protocolo... Isso pode levar até 2 minutos.";
+      protocoloDisplay.textContent = "Gerando código do protocolo... Isso pode levar até 1 minuto.";
       dataHoraDisplay.textContent = "";
 
-      await new Promise(resolve => setTimeout(resolve, 120000)); // 2 minutos
+      await new Promise(resolve => setTimeout(resolve, 60000)); // 1 minuto
 
       protocoloDisplay.textContent = "Buscando...";
 
@@ -68,6 +68,7 @@
   </script>
 </body>
 </html>
+
 
 
 

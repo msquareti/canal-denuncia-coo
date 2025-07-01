@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Envio Anonimo de Arquivos</title>
+</head>
+<body>
+  <h2>Envie um arquivo anonimo vinculado ao seu protocolo</h2>
+
+  <label for="protocoloInput">Numero do protocolo:</label><br />
+  <input type="text" id="protocoloInput" placeholder="Ex: ABC123" required />
+  <br /><br />
+
+  <label for="fileInput">Selecione o arquivo:</label><br />
+  <input type="file" id="fileInput" />
+  <br /><br />
+
+  <button onclick="uploadFile()">Enviar</button>
+
+  <script>
+    async function uploadFile() {
+      const file = document.getElementById("fileInput").files[0];
+      const protocolo = document.getElementById("protocoloInput").value.trim();
+
+      if (!protocolo) {
+        alert("Digite o número do protocolo.");
+        return;
+      }
+
+      if (!file) {
+        alert("Selecione um arquivo para enviar.");
+        return;
+      }
+
+      // 🔧 SUBSTITUA pelo seu SAS Token (sem aspas no final)
+      const sasToken = "sp=w&st=2025-07-01T19:43:48Z&se=2026-06-30T03:43:48Z&spr=https&sv=2024-11-04&sr=c&sig=HUxaZDUUznpDN7l2bgZ8F6rzMa8fEp0lqSI0JO%2FztCg%3D";
+
+      // 🔧 SUBSTITUA pela URL do seu container Blob Storage
+      const containerUrl = "https://storagemsqdenuncias.blob.core.windows.net/msquare-denuncias";
+
+      // Nome do blob: denuncia_<protocolo>_<nome-do-arquivo>
+      const blobName = `denuncia_${protocolo}_${encodeURIComponent(file.name)}`;
+
+      const uploadUrl = `${containerUrl}/${blobName}?${sasToken}`;
+
+      try {
+        const response = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "x-ms-blob-type": "BlockBlob",
+            "Content-Type": file.type
+          },
+          body: file
+        });
+
+        if (response.ok) {
+          alert("Arquivo enviado com sucesso!");
+        } else {
+          alert("Erro ao enviar arquivo: " + response.statusText);
+        }
+      } catch (error) {
+        alert("Falha na comunicação com o servidor: " + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
